@@ -1,0 +1,119 @@
+{
+    "id": null,
+    "title": "System Monitoring Dashboard",
+    "timezone": "browser",
+    "schemaVersion": 36,
+    "version": 2,
+    "refresh": "10s",
+    "panels": [
+      {
+        "type": "graph",
+        "title": "CPU Usage",
+        "datasource": "Prometheus",
+        "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+        "lines": true,
+        "fill": 4,
+        "linewidth": 2,
+        "points": true,
+        "steppedLine": false,
+        "targets": [
+          {
+            "expr": "clamp_min(100 * (1 - avg(rate(node_cpu_seconds_total{mode=\"idle\"}[1m])) by (instance)), 0)",
+            "legendFormat": "{{instance}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+            "defaults": {
+                "unit": "percent",
+                "decimals": 2
+            },
+            "overrides": []
+        }
+      },
+      {
+        "type": "graph",
+        "title": "Memory Usage",
+        "datasource": "Prometheus",
+        "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 },
+        "lines": true,
+        "fill": 4,
+        "linewidth": 2,
+        "points": true,
+        "steppedLine": false,
+        "targets": [
+          {
+            "expr": "(node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100",
+            "legendFormat": "{{instance}}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+            "defaults": {
+                "unit": "percent",
+                "decimals": 2
+            },
+            "overrides": []
+        }
+      },
+      {
+        "type": "gauge",
+        "title": "Download Speed (Mbps)",
+        "datasource": "Prometheus",
+        "gridPos": { "x": 0, "y": 16, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "sum(rate(node_network_receive_bytes_total{device!=\"lo\"}[30s])) * 8 / 1000000",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "min": 0,
+            "max": 1000,
+            "unit": "bps",
+            "decimals": 1,
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "red", "value": 0 },
+                { "color": "orange", "value": 100 },
+                { "color": "green", "value": 300 }
+              ]
+            }
+          },
+          "overrides": []
+        },
+        "options": {
+          "reduceOptions": {
+            "values": false,
+            "calcs": ["last"]
+          },
+          "showThresholdLabels": true,
+          "showThresholdMarkers": true
+        }
+      },
+      {
+        "type": "logs",
+        "title": "System Logs",
+        "datasource": "Loki",
+        "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "{job=\"localfile\"}",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "dedupStrategy": "none",
+          "showLabels": true,
+          "wrapLogMessage": true,
+          "prettifyLogMessage": true
+        }
+      }
+    ]
+  }
+  
